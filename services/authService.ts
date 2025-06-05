@@ -19,6 +19,8 @@ export const authService = {
         expires: 7 // 7 days
       });
 
+      console.log('Token stored in cookie:', !!Cookies.get('token'));
+
       return userCredential;
     } catch (error: any) {
       throw new Error(error.message || 'Login failed');
@@ -54,7 +56,9 @@ export const authService = {
   },
 
   getToken() {
-    return Cookies.get('token');
+    const token = Cookies.get('token');
+    console.log('Getting token from cookie:', !!token);
+    return token;
   },
 
   isAuthenticated() {

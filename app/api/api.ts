@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { authService } from '../../services/authService';
 
 interface PersonalInformation {
   name?: string;
@@ -127,7 +128,7 @@ function Api() {
             // Wait for a short delay to ensure the analysis is complete
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const token = localStorage.getItem('token');
+            const token = authService.getToken();
             if (!token) {
               throw new Error('No authentication token found');
             }

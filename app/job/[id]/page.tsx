@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { authService } from '../../../services/authService';
 
 interface Timestamp {
   _seconds: number;
@@ -33,8 +34,12 @@ interface JobData {
   teamDescription: string;
   jobDescription: string;
   responsibilities: string[];
-  recruitmentTeamName: string;
-  recruitmentManager: string;
+  recruitmentTeamName?: string;
+  recruitmentManager?: string;
+  recruitmentTeam?: {
+    teamName: string;
+    manager: string;
+  };
   createdAt: Timestamp;
   updatedAt: Timestamp;
   interviewers: Interviewer[];
@@ -52,7 +57,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   useEffect(() => {
     const fetchJobData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = authService.getToken();
         if (!token) {
           throw new Error('No authentication token found');
         }
@@ -167,9 +172,9 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           <div className="bg-white rounded-xl p-6 shadow-md mb-4">
             <div className="grid grid-cols-2 gap-y-2 text-sm mb-4">
               <div className="font-semibold text-gray-700">Team</div>
-              <div className="text-gray-900 text-right">{jobData.recruitmentTeamName}</div>
+              <div className="text-gray-900 text-right">{jobData.recruitmentTeamName || jobData.recruitmentTeam?.teamName}</div>
               <div className="font-semibold text-gray-700">Hiring Manager</div>
-              <div className="text-gray-900 text-right">{jobData.recruitmentManager}</div>
+              <div className="text-gray-900 text-right">{jobData.recruitmentManager || jobData.recruitmentTeam?.manager}</div>
               <div className="font-semibold text-gray-700 col-span-2 mt-2">Interviewers</div>
               {jobData.interviewers?.map((interviewer) => (
                 <React.Fragment key={interviewer.id}>

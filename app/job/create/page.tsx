@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { authService } from '../../../services/authService';
 
 interface JobFormData {
   title: string;
@@ -42,8 +43,8 @@ const PostNewJobPage = () => {
     setError(null);
     
     try {
-      // Get the token from localStorage
-      const token = localStorage.getItem('token');
+      const token = authService.getToken();
+      console.log('Token available:', !!token);
       if (!token) {
         throw new Error('No authentication token found');
       }

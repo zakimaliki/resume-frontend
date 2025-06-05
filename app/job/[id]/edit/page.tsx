@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import React from "react";
+import { authService } from '../../../../services/authService';
 
 interface Timestamp {
   _seconds: number;
@@ -25,8 +26,12 @@ interface JobData {
   teamDescription: string;
   jobDescription: string;
   responsibilities: string[];
-  recruitmentTeamName: string;
-  recruitmentManager: string;
+  recruitmentTeamName?: string;
+  recruitmentManager?: string;
+  recruitmentTeam?: {
+    teamName: string;
+    manager: string;
+  };
   createdAt: Timestamp;
   updatedAt: Timestamp;
   interviewers: Interviewer[];
@@ -73,7 +78,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     const fetchJobData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = authService.getToken();
         if (!token) {
           throw new Error('No authentication token found');
         }
@@ -103,8 +108,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           jobDescription: data.jobDescription,
           responsibilities: data.responsibilities,
           recruitmentTeam: {
-            teamName: data.recruitmentTeamName,
-            manager: data.recruitmentManager,
+            teamName: data.recruitmentTeamName || data.recruitmentTeam?.teamName || '',
+            manager: data.recruitmentManager || data.recruitmentTeam?.manager || '',
             interviewers: data.interviewers.map(interviewer => ({
               id: interviewer.id,
               name: interviewer.name,
@@ -127,7 +132,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     setError(null);
     
     try {
-      const token = localStorage.getItem('token');
+      const token = authService.getToken();
       if (!token) {
         throw new Error('No authentication token found');
       }

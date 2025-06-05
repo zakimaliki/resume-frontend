@@ -9,8 +9,12 @@ interface JobPosting {
   id: string;
   title: string;
   location: string;
-  recruitmentTeamName: string;
-  recruitmentManager: string;
+  recruitmentTeamName?: string;
+  recruitmentManager?: string;
+  recruitmentTeam?: {
+    teamName: string;
+    manager: string;
+  };
 }
 
 export default function DashboardPage() {
@@ -22,7 +26,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchJobPostings = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = authService.getToken();
         if (!token) {
           throw new Error('No authentication token found');
         }
@@ -106,10 +110,10 @@ export default function DashboardPage() {
                       <div className="text-sm text-gray-500">{job.location}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{job.recruitmentTeamName}</div>
+                      <div className="text-sm text-gray-500">{job.recruitmentTeamName || job.recruitmentTeam?.teamName}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{job.recruitmentManager}</div>
+                      <div className="text-sm text-gray-500">{job.recruitmentManager || job.recruitmentTeam?.manager}</div>
                     </td>
                   </tr>
                 ))}

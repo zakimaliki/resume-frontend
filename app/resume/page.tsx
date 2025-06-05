@@ -12,6 +12,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 import Api from "../api/api";
+import { authService } from '../../services/authService';
 
 interface Experience {
   company?: string;
@@ -90,7 +91,7 @@ function ResumeContent() {
         };
         reader.readAsDataURL(file);
 
-        const token = localStorage.getItem('token');
+        const token = authService.getToken();
         if (!token) {
           throw new Error('No authentication token found');
         }
