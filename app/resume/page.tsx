@@ -13,6 +13,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 import Api from "../api/api";
 import { authService } from '../../services/authService';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface Experience {
   company?: string;
@@ -97,7 +98,7 @@ function ResumeContent() {
         }
 
         // Get job details
-        const jobResponse = await fetch(`http://localhost:3000/api/jobs/${jobId}`, {
+        const jobResponse = await fetch(`${API_ENDPOINTS.jobs}/${jobId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -109,6 +110,15 @@ function ResumeContent() {
 
         const jobData = await jobResponse.json();
         await handleOpenAI(e, extractedText, jobData);
+
+        const response = await fetch(API_ENDPOINTS.candidates, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(output)
+        });
       } catch (error) {
         console.error('Error processing resume:', error);
         setError(error instanceof Error ? error.message : 'Failed to process resume');

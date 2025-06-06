@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from '../../../services/authService';
+import { API_ENDPOINTS } from '../../../config/api';
 
 interface Timestamp {
   _seconds: number;
@@ -62,7 +63,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           throw new Error('No authentication token found');
         }
 
-        const response = await fetch(`http://localhost:3000/api/jobs/${resolvedParams.id}`, {
+        const response = await fetch(`${API_ENDPOINTS.jobs}/${resolvedParams.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

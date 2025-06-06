@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import React from "react";
 import { authService } from '../../../../services/authService';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface Timestamp {
   _seconds: number;
@@ -83,7 +84,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           throw new Error('No authentication token found');
         }
 
-        const response = await fetch(`http://localhost:3000/api/jobs/${resolvedParams.id}`, {
+        const response = await fetch(`${API_ENDPOINTS.jobs}/${resolvedParams.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -138,7 +139,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       }
 
       // Update the job
-      const jobResponse = await fetch(`http://localhost:3000/api/jobs/${resolvedParams.id}`, {
+      const jobResponse = await fetch(`${API_ENDPOINTS.jobs}/${resolvedParams.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +173,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       // Delete removed interviewers
       await Promise.all(
         removedInterviewers.map(async (interviewer) => {
-          const deleteResponse = await fetch(`http://localhost:3000/api/interviewers/${interviewer.id}`, {
+          const deleteResponse = await fetch(`${API_ENDPOINTS.interviewers}/${interviewer.id}`, {
             method: 'DELETE',
             headers: {
               'Authorization': `Bearer ${token}`
@@ -188,7 +189,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       // Update existing interviewers
       await Promise.all(
         existingInterviewers.map(async (interviewer) => {
-          const updateResponse = await fetch(`http://localhost:3000/api/interviewers/${interviewer.id}`, {
+          const updateResponse = await fetch(`${API_ENDPOINTS.interviewers}/${interviewer.id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -209,7 +210,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       // Create new interviewers
       await Promise.all(
         newInterviewers.map(async (interviewer) => {
-          const createResponse = await fetch('http://localhost:3000/api/interviewers', {
+          const createResponse = await fetch(API_ENDPOINTS.interviewers, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

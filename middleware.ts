@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
   if (publicRoutes.includes(pathname)) {
     // If user is already logged in and tries to access login/register, redirect to dashboard
     if (token && (pathname === '/login' || pathname === '/register')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL('/login', request.url));
     }
     return NextResponse.next();
   }

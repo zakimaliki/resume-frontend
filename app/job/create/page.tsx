@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from '../../../services/authService';
+import { API_ENDPOINTS } from '../../../config/api';
 
 interface JobFormData {
   title: string;
@@ -50,7 +51,7 @@ const PostNewJobPage = () => {
       }
 
       // First, create the job
-      const jobResponse = await fetch('http://localhost:3000/api/jobs', {
+      const jobResponse = await fetch(API_ENDPOINTS.jobs, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +78,7 @@ const PostNewJobPage = () => {
 
       // Then, create the interviewers
       const interviewerPromises = formData.recruitmentTeam.interviewers.map(interviewer =>
-        fetch('http://localhost:3000/api/interviewers', {
+        fetch(API_ENDPOINTS.interviewers, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

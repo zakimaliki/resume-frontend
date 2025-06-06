@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { authService } from '../../services/authService';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface PersonalInformation {
   name?: string;
@@ -118,9 +119,48 @@ function Api() {
       
       // Clean and parse the response text
       const cleanedText = text.replace(/```json|```/g, "").trim();
+      
+      // Debug the response
+      console.log('Raw API Response:', text);
+      console.log('Cleaned Text:', cleanedText);
+
       try {
-        const parsedOutput = JSON.parse(cleanedText);
-        setOutput(parsedOutput);
+        // First try to find a valid JSON object in the response
+        const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          throw new Error("No valid JSON found in API response");
+        }
+
+        // Additional cleaning of the JSON string
+        let jsonStr = jsonMatch[0]
+          .replace(/\n/g, ' ')  // Remove newlines
+          .replace(/\r/g, ' ')  // Remove carriage returns
+          .replace(/\t/g, ' ')  // Remove tabs
+          .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+          .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+          .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)(\s*:)/g, '$1"$2"$3'); // Add quotes to property names
+
+        console.log('Cleaned JSON string:', jsonStr);
+
+        // Try to parse the matched JSON
+        const parsedOutput = JSON.parse(jsonStr);
+        
+        // Validate the structure
+        if (!parsedOutput || typeof parsedOutput !== 'object') {
+          throw new Error("Invalid JSON structure");
+        }
+
+        // Ensure required fields exist
+        const validatedOutput = {
+          personal_information: parsedOutput.personal_information || null,
+          contact: parsedOutput.contact || null,
+          experience: Array.isArray(parsedOutput.experience) ? parsedOutput.experience : [],
+          education: Array.isArray(parsedOutput.education) ? parsedOutput.education : [],
+          additional_information: parsedOutput.additional_information || null
+        };
+
+        console.log('Validated Output:', validatedOutput);
+        setOutput(validatedOutput);
 
         // If we have job data and the analysis was successful, add the candidate
         if (jobData && parsedOutput.personal_information) {
@@ -147,7 +187,7 @@ function Api() {
 
             console.log('Creating candidate with data:', candidateData);
 
-            const response = await fetch('http://localhost:3000/api/candidates', {
+            const response = await fetch("https://resume-backend-git-master-zakimalikis-projects.vercel.app/api/candidates", {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -157,7 +197,8 @@ function Api() {
             });
 
             if (!response.ok) {
-              throw new Error('Failed to add candidate');
+              const errorText = await response.text();
+              throw new Error(`Failed to add candidate: ${errorText}`);
             }
 
             // Show success message
@@ -169,23 +210,10 @@ function Api() {
           }
         }
 
-        return parsedOutput;
+        return validatedOutput;
       } catch (parseError) {
         console.error("Error parsing JSON:", parseError);
-        // If parsing fails, try to extract JSON from the response
-        const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          try {
-            const extractedJson = JSON.parse(jsonMatch[0]);
-            setOutput(extractedJson);
-            return extractedJson;
-          } catch (extractError) {
-            console.error("Error extracting JSON:", extractError);
-            throw new Error("Failed to parse API response as JSON");
-          }
-        } else {
-          throw new Error("No valid JSON found in API response");
-        }
+        throw new Error("Failed to parse API response as JSON");
       }
     } catch (error) {
       console.error("Error:", error);

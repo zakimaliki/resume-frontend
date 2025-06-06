@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authService } from '../../services/authService';
 import { Button } from '../../components/atoms/Button';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface JobPosting {
   id: string;
@@ -31,7 +32,7 @@ export default function DashboardPage() {
           throw new Error('No authentication token found');
         }
 
-        const res = await fetch('http://localhost:3000/api/jobs', {
+        const res = await fetch(API_ENDPOINTS.jobs, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
